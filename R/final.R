@@ -13,7 +13,9 @@ data_clean_tbl <- data_numeric_tbl %>%
   as_tibble() %>% #converting to a tibble 
   select(CASEID, BBC2_1:BBC2_11, BBC3_1:BBC3_10, BBC4_1:BBC4_8, BBC5_1:BBC5_5, BBC6, BBC7, BBC10, PPGENDER, PPETHM, PPINC7, PPSTATEN, URB_SUB_,PARTYID4) %>% #choosing the columns I'll need later for data analysis 
   mutate(across(BBC2_1:BBC5_5, as.numeric)) %>% #coverting specific variables to numeric for later analysis
-  mutate(
+  mutate(state = factor(PPSTATEN,
+                        levels= c("11","12","13","14","15","16","21","22","23","31","32","33","34","35","41","42","43","44","45","46","47","51","52","53","54","55","56","57","58","59","61","62","63","64","71","72","73","74","81","82","83","84","85","86","87","88","91","92","93","94","95"),
+                        labels= c("ME","NH","VT","MA","RI","CT","NY","NJ","PA","OH","IN","IL","MI","WI","MN","IA","MO","ND","SD","NE","KS","DE","MD","DC","VA","WV","NC","SC","GA","FL","KY","TN","AL","MS","AR","LA","OK","TX","MT","ID","WY","CO","NM","AZ","UT","NV","WA","OR","CA","AK","HI")),
     gender = factor(PPGENDER,
                     levels = c("1","2"),
                     labels = c("Male","Female")),
@@ -26,7 +28,8 @@ data_clean_tbl <- data_numeric_tbl %>%
     location = factor(URB_SUB_,
                       levels= c("1", "2", "3"),
                       labels= c("Urban","Rural","Suburban")))%>%
-  select(-PPGENDER, -PARTYID4, -PPETHM, -URB_SUB_)  #deleting the unfactored versions of these variables, i used my names because those are easier for me
+  filter(pid != "Something else") %>%
+  select(-PPGENDER, -PARTYID4, -PPETHM, -URB_SUB_, -PPSTATEN)  #deleting the unfactored versions of these variables, i used my names because those are easier for me
  
  
 #mis_questions <- data_numeric_tbl %>%
@@ -48,13 +51,19 @@ accuracy_tbl <- data_clean_tbl %>%
   mutate(accuracy_count = rowSums(select(.,BBC3_1: BBC3_10))) %>% #using rowsums to count the number of ones for each questions and sum them so I have a count of how many questions each participant got correct.  
   mutate(accuracy_score = accuracy_count/10) #creating accuracy scores by the amount they got right out the number of questions
 
+
 #Visualization
-ggplot()
+ggplot(accuracy_tbl, 
+      aes(x= pid, y= accuracy_score, fill= gender)) + 
+      geom_boxplot() +
+      labs(title= "Accuracy Score by Party Identification", xlab= "Party Identification", ylab= "Accuracy Score Percentage")
 
 #Analysis
+state_means <- accuracy_tbl %>%
+  group_by(state) %>%
+  summarise(avg_accuracy = mean(accuracy_score),
+            count= n()) 
 
-m1<-lm(accuracy_score~pid + gender, data=accuracy_tbl)
-summary(m1) #will be deleted later, just needed to see if my code was working
 
 
 #Publication
