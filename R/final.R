@@ -6,7 +6,7 @@ library(caret)# needed this for machine learning
 library(rsconnect) #need this for shiny web app
 
 #Data Import and Cleaning
-data_raw_tbl <- read_spss("../data/31119144.por") #using read_spss to import the spss file because this is the code I know how to use 
+data_raw_tbl <- read_spss("../data/31119144.por") #using read_spss to import the spss file because this is the code I know how to use and it worked with the specific file type I had. 
 
 data_clean_tbl <- data_raw_tbl %>%
   as_tibble() %>% #converting to a tibble 
@@ -119,17 +119,18 @@ vote_summary_tbl <- accuracy_tbl %>% #saving as a tibble so I can display the ta
 #write_csv(vote_summary_tbl,"../figs/vote_summary_tbl.csv") saving vote choice summary tibble as a csv file
 
 ###OLS regression analysis
-pid_model <- lm(accuracy_score~pid, data= accuracy_tbl) 
-summary(pid_model)
+pid_model <- lm(accuracy_score~pid, data= accuracy_tbl) #running lm model on accuracy score by pid
+summary(pid_model) #summarizing the pid_model
 
-gender_model <- lm(accuracy_score~gender, data=accuracy_tbl)
-summary(gender_model)
+gender_model <- lm(accuracy_score~gender, data=accuracy_tbl) #running lm model on accuracy score by gender
+summary(gender_model) #summarizing the gender_model 
 
-vote_2020_model <- lm(accuracy_score~vote_2020, data=accuracy_tbl)
-summary(vote_2020_model)
+vote_2020_model <- lm(accuracy_score~vote_2020, data=accuracy_tbl) #running lm model on accuracy score by vote choice in 2020 election
+summary(vote_2020_model) #summarizing the vote_2020 model 
 
-interaction_model <- lm(accuracy_score~pid*gender*vote_2020, data= accuracy_tbl)
-summary(interaction_model)
+interaction_model <- lm(accuracy_score~pid*gender*vote_2020, data= accuracy_tbl) #running lm model on accuracy score and interactions
+summary(interaction_model) #summarizing the interaction_model 
+
 #### Machine Learning
 holdout_indices <- createDataPartition(accuracy_tbl$accuracy_score,
                                        p = .50,
