@@ -250,6 +250,8 @@ View(state_summary_tbl)#viewing the summary data by state within the view since 
 
 vote_summary_tbl #viewing the summary data by 2020 vote choice 
 
+income_summary_tbl #viewing the summary data by income 
+
 #machine learning tibble
 table1_tbl <- tibble(
   algo = c("regression","elastic net","random forests","xgboost"), #specifies which model 
