@@ -148,14 +148,14 @@ model1 <- train(
   trControl = trainControl(method="cv", #method cv to create cross-validation 
                            number=5,  #choosing ten folds
                            verboseIter=T, 
-                           indexOut = training_folds)
+                           indexOut = training_folds) #using the folds created earlier
 )   
 model1
-cv_m1 <- model1$results$Rsquared
+cv_m1 <- model1$results$Rsquared #identifying the Rsquared for the training model
 holdout_m1 <- cor(
-  predict(model1, test_tbl, na.action = na.pass),
+  predict(model1, test_tbl, na.action = na.pass), #running predict to run the model on the test data
   test_tbl$accuracy_score
-)^2
+)^2 #calculating the Rsquared for the holdout model 
 
 model2 <- train(
   accuracy_score ~ vote_2020*pid*gender,
@@ -169,11 +169,11 @@ model2 <- train(
                            indexOut = training_folds)
 )
 model2
-cv_m2 <- max(model2$results$Rsquared)
+cv_m2 <- max(model2$results$Rsquared) #this takes the largest Rsquared for model 2
 holdout_m2 <- cor(
-  predict(model2, test_tbl, na.action = na.pass),
+  predict(model2, test_tbl, na.action = na.pass), #running predict to run the model on the test data
   test_tbl$accuracy_score
-)^2
+)^2 #calculating Rsquared from the test data by wrapping it in cor()^2
 
 model3 <- train(
   accuracy_score ~ vote_2020*pid*gender,
@@ -194,7 +194,7 @@ cv_m3 <- max(model3$results$Rsquared)
 holdout_m3 <- cor(
   predict(model3, test_tbl, na.action = na.pass),
   test_tbl$accuracy_score
-)^2
+)^2 #calculating Rsquared from the test data by wrapping it in cor()^2
 
 model4 <- train(
   accuracy_score ~ vote_2020*pid*gender,
@@ -209,7 +209,7 @@ model4 <- train(
                            indexOut = training_folds)
 )
 model4
-cv_m4 <- max(model4$results$Rsquared) #this take the largest Rsquared for model 4
+cv_m4 <- max(model4$results$Rsquared) #this takes the largest Rsquared for model 4
 holdout_m4 <- cor(
   predict(model4, test_tbl, na.action = na.pass), #running the model with the test data 
   test_tbl$accuracy_score
@@ -222,10 +222,11 @@ dotplot(resamples(list(model1, model2, model3, model4)), metric="Rsquared")
 
 #function 
 make_it_pretty <- function (formatme) {
-  formatme <- formatC(formatme, format="f", digits=2)
-  formatme <- str_remove(formatme, "^0")
+  formatme <- formatC(formatme, format="f", digits=2) #only 2 digits after the point
+  formatme <- str_remove(formatme, "^0") #removes the leading zero 
   return(formatme)
 }
+#using the make it pretty function for week10 machine learning project
 
 #descriptive tibbles
 gender_summary_tbl #viewing the summary data by gender
@@ -238,22 +239,22 @@ vote_summary_tbl #viewing the summary data by 2020 vote choice
 
 #machine learning tibble
 table1_tbl <- tibble(
-  algo = c("regression","elastic net","random forests","xgboost"),
+  algo = c("regression","elastic net","random forests","xgboost"), #specifies which model 
   cv_rqs = c(
-    make_it_pretty(cv_m1),
-    make_it_pretty(cv_m2),
-    make_it_pretty(cv_m3),
-    make_it_pretty(cv_m4)
+    make_it_pretty(cv_m1), #using the make_it_pretty function on the Rsquared from training model 1
+    make_it_pretty(cv_m2), #using the make_it_pretty function on the Rsquared from training model 2
+    make_it_pretty(cv_m3), #using the make_it_pretty function on the Rquared from training model 3
+    make_it_pretty(cv_m4).#using the make_it_pretty function on the Rquared from training model 4
   ),
   ho_rqs = c(
-    make_it_pretty(holdout_m1),
-    make_it_pretty(holdout_m2),
-    make_it_pretty(holdout_m3),
-    make_it_pretty(holdout_m4)
+    make_it_pretty(holdout_m1), #using the make_it_pretty_function on the Rsquared from the holdout model 1
+    make_it_pretty(holdout_m2), #using the make_it_pretty_function on the Rsquared from the holdout model 2
+    make_it_pretty(holdout_m3), #using the make_it_pretty_function on the Rsquared from the holdout model 3
+    make_it_pretty(holdout_m4)#using the make_it_pretty_function on the Rsquared from the holdout model 4
   )
 )
 
-table1_tbl
+table1_tbl #viewing the table with the Rsquared from machine learning models
 
 #Data Export
 accuracy_tbl %>% 
