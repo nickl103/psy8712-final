@@ -44,6 +44,7 @@ accuracy_tbl <- data_clean_tbl %>%
   mutate(accuracy_count = rowSums(select(.,BBC3_1: BBC3_10))) %>% #using rowsums to count the number of ones for each questions and sum them so I have a count of how many questions each participant got correct and creating an accuracy_count column 
   mutate(accuracy_score = accuracy_count/10) #creating accuracy scores by the amount they got right out the number of questions and creating a column for those scores. 
 
+#write_csv(accuracy_tbl, "../data/accuracy_tbl.csv") saving the accuracy score tibble as a csv file
 
 #Visualization
 (accuracy_tbl %>% #piping the data in as opposed to putting it in the first parentheses to make it easier for saving
@@ -87,24 +88,36 @@ state_summary_tbl <- accuracy_tbl %>% #saving as a tibble so I can display the t
             avg_accuracy_state = mean(accuracy_score), 
             sd_accuracy_state= sd(accuracy_score)) 
 #using summarise to get the count, mean, and sd for accuracy scores by state to be consistent in using tidyverse code
+
+#write_csv(state_summary_tbl,"../figs/state_summary_tbl.csv") #saving table as a csv file 
+
 pid_summary_tbl <- accuracy_tbl %>% #saving as a tibble so I can display the table in the publication section
   group_by(pid) %>% #grouping by pid using the group_by function from dplyr to be consistent in using tidyverse code
   summarise(count = n(),
             avg_accuracy_pid = mean(accuracy_score),
             sd_accuracy_pid = sd(accuracy_score))
 #using summarise to get the count, mean, and sd for accuracy scores by party id to be consistent in using tidyverse code
+
+#write_csv(pid_summary_tbl,"../figs/pid_summary_tbl.csv") saving pid summary tibble as a csv file
+
 gender_summary_tbl <- accuracy_tbl %>% #saving as a tibble so I can display the table in the publication section
   group_by(gender) %>% #grouping by gender using the group_by function from dplyr to be consistent in using tidyverse code
   summarise(count= n(),
             avg_accuracy_gender = mean(accuracy_score),
             sd_accuracy_gender = sd(accuracy_score))
 #using summarise to get the count, mean, and sd for accuracy scores by gender to be consistent in using tidyverse code
+
+#write_csv(gender_summary_tbl,"../figs/gender_summary_tbl.csv") saving gender summary tibble as a csv file
+
 vote_summary_tbl <- accuracy_tbl %>% #saving as a tibble so I can display the table in the publication section
   group_by(vote_2020) %>% #grouping by vote choice using the group_by function from dplyr to be consistent in using tidyverse code
   summarise(count = n(),
             avg_accuracy_vote = mean(accuracy_score),
             sd_accuracy_vote = sd(accuracy_score))
 #using summarise to get the count, mean, and sd for accuracy scores by vote choice to be consistent in using tidyverse code
+
+#write_csv(vote_summary_tbl,"../figs/vote_summary_tbl.csv") saving vote choice summary tibble as a csv file
+
 #### Machine Learning
 holdout_indices <- createDataPartition(accuracy_tbl$accuracy_score,
                                        p = .50,
@@ -153,7 +166,7 @@ holdout_m2 <- cor(
 model3 <- train(
   accuracy_score ~ vote_2020*pid*gender,
   training_tbl,
-  tuneGrid= expand.grid(mtry= c(2,12,18), #changed mtry because my tibble only has 20 variables so I changed from 23 to 18 as the last mtry because without this the model kept failing
+  tuneGrid= expand.grid(mtry= c(2,12,18), #changed mtry because my tibble only has 18 variables so I changed from 23 to 18 as the last mtry because without this the model kept failing
                         splitrule= 'variance',
                         min.node.size= 5),
   method="ranger", #method ranger for random forest model
@@ -231,5 +244,6 @@ table1_tbl <- tibble(
 table1_tbl
 
 #Data Export
-accuracy_tbl %>%
-  saveRDS("../shiny/final_shiny/import.RDS")
+accuracy_tbl %>% 
+  select(-BBC3_1:BBC3_10) %>% #deleting the specific misinformation questions because I only need the accuracy counts and percentages for my web app
+  saveRDS("../shiny/final_shiny/import.RDS") #saving a skinny version of the file for shiny
