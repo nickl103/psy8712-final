@@ -1,0 +1,10 @@
+name: final_shiny
+title:
+username: nickl103
+account: nickl103
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 11928704
+bundleId: 8572823
+url: https://nickl103.shinyapps.io/final_shiny/
+version: 1
