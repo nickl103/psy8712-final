@@ -228,8 +228,8 @@ holdout_m4 <- cor(
   test_tbl$accuracy_score
 )^2 #calculating Rsquared from the test data by wrapping it in cor()^2
 
-summary(resamples(list(model1, model2, model3, model4)), metric="Rsquared")
-dotplot(resamples(list(model1, model2, model3, model4)), metric="Rsquared")
+summary(resamples(list(model1, model2, model3, model4)), metric="Rsquared") #summarising the Rsquared for the models
+dotplot(resamples(list(model1, model2, model3, model4)), metric="Rsquared") #viewing dotplot of models Rsquared
 
 #Publication
 
