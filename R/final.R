@@ -118,6 +118,18 @@ vote_summary_tbl <- accuracy_tbl %>% #saving as a tibble so I can display the ta
 
 #write_csv(vote_summary_tbl,"../figs/vote_summary_tbl.csv") saving vote choice summary tibble as a csv file
 
+###OLS regression analysis
+pid_model <- lm(accuracy_score~pid, data= accuracy_tbl) 
+summary(pid_model)
+
+gender_model <- lm(accuracy_score~gender, data=accuracy_tbl)
+summary(gender_model)
+
+vote_2020_model <- lm(accuracy_score~vote_2020, data=accuracy_tbl)
+summary(vote_2020_model)
+
+interaction_model <- lm(accuracy_score~pid*gender*vote_2020, data= accuracy_tbl)
+summary(interaction_model)
 #### Machine Learning
 holdout_indices <- createDataPartition(accuracy_tbl$accuracy_score,
                                        p = .50,
