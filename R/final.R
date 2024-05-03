@@ -15,6 +15,7 @@ data_clean_tbl <- data_raw_tbl %>%
          across(BBC3_1:BBC3_10,~ifelse(.==-1, NA, .)), #converting skips to NAs
          across(BBC3_1:BBC3_10,~ifelse(.==3, NA, .))) %>% #converting don't knows to NAs because I don't want them in my analysis
   filter(rowMeans(is.na(across(BBC3_1:BBC3_10)))< .40) %>% #getting rid of participants who had NAs for 4/10 questions because I only want to keep participants who answered a majority of the questions
+  mutate(caseid = as.numeric(CASEID)) %>% #making caseid numeric because it was causing issues when i was laucnhing my web app
   mutate(state = factor(PPSTATEN,
                         levels= c("11","12","13","14","15","16","21","22","23","31","32","33","34","35","41","42","43","44","45","46","47","51","52","53","54","55","56","57","58","59","61","62","63","64","71","72","73","74","81","82","83","84","85","86","87","88","91","92","93","94","95"),
                         labels= c("ME","NH","VT","MA","RI","CT","NY","NJ","PA","OH","IN","IL","MI","WI","MN","IA","MO","ND","SD","NE","KS","DE","MD","DC","VA","WV","NC","SC","GA","FL","KY","TN","AL","MS","AR","LA","OK","TX","MT","ID","WY","CO","NM","AZ","UT","NV","WA","OR","CA","AK","HI")), #facotring states so I have the value and the label for use in my shiny app as well as renaming it to make it easier for later
@@ -26,12 +27,16 @@ data_clean_tbl <- data_raw_tbl %>%
                     labels = c("Male","Female")), #facotring gender for later use and renaming it
     pid = factor(PARTYID4,
                     levels= c("1","2","3","4"),
-                    labels= c("Republican","Democrat","Independent","Something else"))) %>% #factoring party id for later us and renaming it. 
+                    labels= c("Republican","Democrat","Independent","Something else")),#factoring party id for later us and renaming it. 
+    income = factor(PPINC7,
+                    levels= c("1","2","3","4","5","6","7"),
+                    labels= c("Under $10,000","$10,000 to $24,999","$25,000 to $49,999","$50,000 to $74,999", "$75,000 to $99,999", "$100,000 to $149,999", "$150,000 or more"))
+    ) %>% 
   filter(pid != "Something else", #filtering out people who do not identify as Democrat, Republican, or Independent because they are not necessary for the hypotheses. 
          vote_2020 != "Skipped",
          vote_2020 != "Did not vote",
          vote_2020 != "Someone Else") %>% #filtering out people who skipped, did not vote, or voted for someone besides Trump or Biden becuase they are not necessary for my hypotheses
-  select(-PPGENDER, -PARTYID4, -PPSTATEN, -BBC10)  #deleting the unfactored versions of these variables, i used my names because those are easier for me
+  select(-PPGENDER, -PARTYID4, -PPSTATEN, -BBC10, -PPINC7)  #deleting the unfactored versions of these variables, i used my names because those are easier for me
 
 true_correct <- c("BBC3_2", "BBC3_3", "BBC3_5", "BBC3_6") #creating a vector of accuracy questions with true as the correct answer because it was easier for me to do this as a separate vecotr than to put this into the pipe
 
@@ -118,6 +123,13 @@ vote_summary_tbl <- accuracy_tbl %>% #saving as a tibble so I can display the ta
 
 #write_csv(vote_summary_tbl,"../figs/vote_summary_tbl.csv") saving vote choice summary tibble as a csv file
 
+income_summary_tbl <- accuracy_tbl %>%
+  group_by(income) %>%
+  summarise(count =n(),
+            avg_accuracy_income = mean(accuracy_score),
+            sd_accuracy_income= sd(accuracy_score))
+
+#write_csv(income_summary_tbl, "../figs/income_summary_tbl.csv")
 ###OLS regression analysis
 pid_model <- lm(accuracy_score~pid, data= accuracy_tbl) #running lm model on accuracy score by pid
 summary(pid_model) #summarizing the pid_model
@@ -245,7 +257,7 @@ table1_tbl <- tibble(
     make_it_pretty(cv_m1), #using the make_it_pretty function on the Rsquared from training model 1
     make_it_pretty(cv_m2), #using the make_it_pretty function on the Rsquared from training model 2
     make_it_pretty(cv_m3), #using the make_it_pretty function on the Rquared from training model 3
-    make_it_pretty(cv_m4).#using the make_it_pretty function on the Rquared from training model 4
+    make_it_pretty(cv_m4) #using the make_it_pretty function on the Rquared from training model 4
   ),
   ho_rqs = c(
     make_it_pretty(holdout_m1), #using the make_it_pretty_function on the Rsquared from the holdout model 1
@@ -259,5 +271,5 @@ table1_tbl #viewing the table with the Rsquared from machine learning models
 
 #Data Export
 accuracy_tbl %>% 
-  select(-BBC3_1:BBC3_10) %>% #deleting the specific misinformation questions because I only need the accuracy counts and percentages for my web app
+  select(caseid,gender,pid,vote_2020,state,income, accuracy_score) %>%#deleting the specific misinformation questions because I only need the accuracy counts and percentages for my web app
   saveRDS("../shiny/final_shiny/import.RDS") #saving a skinny version of the file for shiny
