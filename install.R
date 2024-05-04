@@ -1,0 +1,1 @@
+install.packages(c("tidyverse", "haven","caret","rsconnect","apaTables"))
