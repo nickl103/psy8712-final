@@ -2,6 +2,8 @@
 
 folders are denoted with #
 
+here is a link to a binder version of this project to use the exact version of R and packages that were used for this project: https://mybinder.org/v2/gh/nickl103/psy8712-final.git/HEAD (please click on Rstudio, I could not get the pathing with the url to work)
+
 .gitignore
 .Rhistory
 install.R #needed to create web binder
