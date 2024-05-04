@@ -2,6 +2,11 @@
 
 folders are denoted with #
 
+.gitignore
+.Rhistory
+install.R #needed to create web binder
+runtime.txt #need to create web binder
+
 #data
 
 31119144.csv #did not use for project but has the file answers in word format so may be helpful for understanding
