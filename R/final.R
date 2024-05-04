@@ -88,7 +88,7 @@ state_summary_tbl <- accuracy_tbl %>% #saving as a tibble so I can display the t
             sd_accuracy_state= sd(accuracy_score)) 
 #using summarise to get the count, mean, and sd for accuracy scores by state to be consistent in using tidyverse code
 
-#write_csv(state_summary_tbl,"../figs/state_summary_tbl.csv") #saving table as a csv file 
+write_csv(state_summary_tbl,"../out/state_summary_tbl.csv") #saving table as a csv file 
 
 pid_summary_tbl <- accuracy_tbl %>% #saving as a tibble so I can display the table in the publication section
   group_by(pid) %>% #grouping by pid using the group_by function from dplyr to be consistent in using tidyverse code
@@ -97,7 +97,7 @@ pid_summary_tbl <- accuracy_tbl %>% #saving as a tibble so I can display the tab
             sd_accuracy_pid = sd(accuracy_score))
 #using summarise to get the count, mean, and sd for accuracy scores by party id to be consistent in using tidyverse code
 
-#write_csv(pid_summary_tbl,"../figs/pid_summary_tbl.csv") saving pid summary tibble as a csv file
+write_csv(pid_summary_tbl,"../out/pid_summary_tbl.csv") #saving pid summary tibble as a csv file
 
 gender_summary_tbl <- accuracy_tbl %>% #saving as a tibble so I can display the table in the publication section
   group_by(gender) %>% #grouping by gender using the group_by function from dplyr to be consistent in using tidyverse code
@@ -106,7 +106,7 @@ gender_summary_tbl <- accuracy_tbl %>% #saving as a tibble so I can display the 
             sd_accuracy_gender = sd(accuracy_score))
 #using summarise to get the count, mean, and sd for accuracy scores by gender to be consistent in using tidyverse code
 
-#write_csv(gender_summary_tbl,"../figs/gender_summary_tbl.csv") saving gender summary tibble as a csv file
+write_csv(gender_summary_tbl,"../out/gender_summary_tbl.csv") #saving gender summary tibble as a csv file
 
 vote_summary_tbl <- accuracy_tbl %>% #saving as a tibble so I can display the table in the publication section
   group_by(vote_2020) %>% #grouping by vote choice using the group_by function from dplyr to be consistent in using tidyverse code
@@ -115,7 +115,7 @@ vote_summary_tbl <- accuracy_tbl %>% #saving as a tibble so I can display the ta
             sd_accuracy_vote = sd(accuracy_score))
 #using summarise to get the count, mean, and sd for accuracy scores by vote choice to be consistent in using tidyverse code
 
-#write_csv(vote_summary_tbl,"../figs/vote_summary_tbl.csv") saving vote choice summary tibble as a csv file
+write_csv(vote_summary_tbl,"../out/vote_summary_tbl.csv") #saving vote choice summary tibble as a csv file
 
 income_summary_tbl <- accuracy_tbl %>%
   group_by(income) %>%
@@ -138,8 +138,9 @@ interaction_model <- lm(accuracy_score~pid*gender*vote_2020, data= accuracy_tbl)
 summary(interaction_model) #summarizing the interaction_model 
 
 #### Machine Learning
+set.seed(1234)
 holdout_indices <- createDataPartition(accuracy_tbl$accuracy_score,
-                                       p = .50,
+                                       p = .75,
                                        list = T)$Resample1 #using data partition to split data in half to be used to create training and test datasets for machine learning
 test_tbl <- accuracy_tbl[holdout_indices,] #creating the test/holdout data by selecting the holdout indices from thd accuracy_tbl
 training_tbl <- accuracy_tbl[-holdout_indices,] #creating the training data by selecting not the holdout indices. 
@@ -185,7 +186,7 @@ holdout_m2 <- cor(
 model3 <- train(
   accuracy_score ~ vote_2020*pid*gender,
   training_tbl,
-  tuneGrid= expand.grid(mtry= c(2,12,18), #changed mtry because my tibble only has 18 variables so I changed from 23 to 18 as the last mtry because without this the model kept failing
+  tuneGrid= expand.grid(mtry= c(2,12), #changed mtry because my tibble only has 18 variables so I changed from 23 to 15 as the last mtry because without this the model kept failing
                         splitrule= 'variance',
                         min.node.size= 5),
   method="ranger", #method ranger for random forest model
@@ -248,9 +249,27 @@ income_summary_tbl #viewing the summary data by income
 
 #OLS results
 
+#H1: There will be significant group differences in accuracy score by vote choice.
+summary(vote_2020_model)
+apa.reg.table(vote_2020_model, filename= "../out/vote_2020_regression_table.doc") #used this function from apa tables to create apap table for regreesion 
+#Based on the OLS analysis, there are significant group differences by vote choice, with an Rsquared of .5351. 
+#H2: There will be significant group differences in accuracy score by gender.
+summary(gender_model)
+apa.reg.table(gender_model, filename="../out/gender_regression_table.doc")
+#Based on the OLS analysis, accuracy score was significant for males but not for females, with a very small Rsquared of .002
 
+#H3: There will be significant group differences in accuracy score by party identification. 
+summary(pid_model)
+apa.reg.table(pid_model, filename="../out/pid_regression_table.doc")
+#Based on the OLS analysis, accuracy score was significantly different for all three party identification with an Rsquared of .39. 
+  
+#R6: How do these variables interact with each other and vote choice?
+summary(interaction_model)
+apa.reg.table(interaction_model, filename="../out/interaction_regression_table.doc")
+#to learn more I compared the OLS interaction model with other types of models using machine learning  
 #machine learning tibble
-table1_tbl <- tibble(
+
+machinelearning_tbl <- tibble(
   algo = c("regression","elastic net","random forests","xgboost"), #specifies which model 
   cv_rqs = c(
     make_it_pretty(cv_m1), #using the make_it_pretty function on the Rsquared from training model 1
@@ -266,7 +285,9 @@ table1_tbl <- tibble(
   )
 )
 
-table1_tbl #viewing the table with the Rsquared from machine learning models
+machinelearning_tbl #viewing the table with the Rsquared from machine learning models
+
+write_csv(table1_tbl, "../out/machinelearning_tbl.csv") #saving the table to output folder
 
 #Data Export
 accuracy_tbl %>% 
