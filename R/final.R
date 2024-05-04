@@ -4,6 +4,7 @@ library(tidyverse) #need this so I can use tidyverse functions for data cleaning
 library(haven) #needed this to read in the por data file
 library(caret)# needed this for machine learning
 library(rsconnect) #need this for shiny web app
+library(apaTables) #using this to make tables
 
 #Data Import and Cleaning
 data_raw_tbl <- read_spss("../data/31119144.por") #using read_spss to import the spss file because this is the code I know how to use and it worked with the specific file type I had. 
@@ -52,37 +53,30 @@ accuracy_tbl <- data_clean_tbl %>%
 #write_csv(accuracy_tbl, "../data/accuracy_tbl.csv") saving the accuracy score tibble as a csv file
 
 #Visualization
-(accuracy_tbl %>% #piping the data in as opposed to putting it in the first parentheses to make it easier for saving
-    ggplot(aes(x=CASEID, y= accuracy_score)) + #putting the case id on x and accuracy socre on y so we can see the range of scores
-    geom_jitter() + #jitter as oppsoed to point because people got the same scores
-    labs(title= "Jitterplot of Accuracy Scores",#naming the plot
-         xlab= "Case ID Number", #labeling x axis
-         ylab= "Accuracy Score Percentage")) %>%
-  ggsave("../figs/fig1.png", ., width=1920, height=1080, units="px") #saving to figures using guidelines from class for figure format
-##using this method of ggplot so I can save the figure to the figs folder using ggsave
+
 (accuracy_tbl %>% #piping the data in as opposed to putting it in the first parentheses to make it easier for saving
     ggplot(aes(x= accuracy_score)) +
     geom_histogram() + 
-    labs(title= "Histogram of Accuracy Scores", #naming the plot
+    labs(title= "Figure 1. Histogram of Accuracy Scores", #naming the plot
          xlab= "Accuracy Scores", #labeling x axis
          ylab= "Frequency")) %>% #labeling y axis
-  ggsave("../figs/fig2.png", ., width=1920, height=1080, units="px") #saving to figures using guidelines from class for figure format
+  ggsave("../figs/fig1.png", ., width=1920, height=1080, units="px") #saving to figures using guidelines from class for figure format
 
 (accuracy_tbl %>% #piping the data in as opposed to putting it in the first parentheses to make it easier for saving
   ggplot(aes(x= pid, y= accuracy_score, fill= gender)) + #putting pid on x as the predictor, accuracy_score on y as the outcome, and fill gender so I can visualize score differences by gender and pid. 
       geom_boxplot() +
-      labs(title= "Boxplot of Accuracy Score by Party Identification and Gender",
+      labs(title= "Figure 2. Boxplot of Accuracy Score by Party Identification and Gender",
            xlab= "Party Identification",
            ylab= "Accuracy Score Percentage")) %>%
-  ggsave("../figs/fig3.png", ., width=1920, height=1080, units="px") #saving to figures using guidelines from class for figure format
+  ggsave("../figs/fig2.png", ., width=1920, height=1080, units="px") #saving to figures using guidelines from class for figure format
 
 (accuracy_tbl %>%
     ggplot(aes(x= pid, y= accuracy_score, fill= vote_2020)) + #putting pid on x as the predictor, accuracy_score on y as the outcome, and fill vote_2020 so I can visualize score differences by vote choice and pid. 
        geom_boxplot() +
-       labs(title = "Boxplot of Accuracy Score by Party ID and Vote 2020", #giving figure a title
+       labs(title = "Figure 3. Boxplot of Accuracy Score by Party ID and Vote 2020", #giving figure a title
             xlab= "Party Identification", #labeling the x-axis
             ylab="Accuracy Score Percentage")) %>% #labeling the y- axis
-  ggsave("../figs/fig4.png", ., width=1920, height=1080, units="px") #saving to figures using guidelines from class for figure format
+  ggsave("../figs/fig3.png", ., width=1920, height=1080, units="px") #saving to figures using guidelines from class for figure format
 
 #Analysis
 
@@ -251,6 +245,9 @@ View(state_summary_tbl)#viewing the summary data by state within the view since 
 vote_summary_tbl #viewing the summary data by 2020 vote choice 
 
 income_summary_tbl #viewing the summary data by income 
+
+#OLS results
+
 
 #machine learning tibble
 table1_tbl <- tibble(
