@@ -12,12 +12,16 @@ accuracy_tbl.csv #cleaned data file used for data analysis
 
 31119144.pdf #the documentation provided from the source of the data
 RoperID_31119144-topline.pdf #documentation provided from the source of the data 
+final.docx #final write up
 
 #figs
-fig1.png #figure 1 that shows jitterplot of accuracy scores
-fig2.png #figure 2 shows histogram of frequency of accuracy scores
-fig3.png #figure 3 shows boxplot of party identification and gender
-fig4.png #figure 4 shows boxplot of party identification and vote choice
+fig1.png #figure 1 shows histogram of frequency of accuracy scores
+fig2.png #figure 2 shows boxplot of party identification and gender
+fig3.png #figure 3 shows boxplot of party identification and vote choice
+
+
+
+#out
 
 gender_summary_tbl.csv #summary of gender data
 pid_summary_tbl.csv #summary of party identification data
@@ -25,7 +29,13 @@ state_summary_tbl.csv #summary of state data
 vote_summary_tbl.csv #summary of vote choice data
 income_summary_tbl.csv #summary of income data
 
-#out
+machinelearning_tbl.csv #table of machine learning results. 
+
+gender_regression_table.doc #apa formatted table for gender OLS model
+vote_2020_regression_table.doc #apa formatted table for vote choice OLS model
+pid_regression_table.doc #apa formatted table for pid OLS model
+interaction_regression_table.doc #apa formatted table for interaction OLS model
+
 
 #R
 
